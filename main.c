@@ -2,11 +2,15 @@
 #include<stdlib.h>
 #include<ncurses.h>
 
+#define HEADER ">--\t--<"
+
 typedef struct Player {
     int x;
     int y;
     char* direction;
     char* avatar;
+    char* items;
+    int selector;
 } Player;
 
 int screenSetup();
@@ -34,7 +38,7 @@ int main(int argc, char* argv[]) {
 
 int screenSetup() {
     initscr();
-    printw("hello, use hjkl to move, space to remove a block");
+    printw("use hjkl to move, space to use item");
     noecho();
     curs_set(0);
     refresh();
@@ -50,6 +54,8 @@ Player * playerSetup() {
     newPlayer->y = 10;
     newPlayer->direction = "k";
     newPlayer->avatar = "*";
+    newPlayer->items = " *|-@";
+    newPlayer->selector = 0;
 
     playerMove(14, 14, newPlayer);
     mvprintw(newPlayer->x, newPlayer->y, newPlayer->avatar);
@@ -77,14 +83,15 @@ int mapSetup() {
 
 int handleInput(int input, Player * user) {
     int newY, newX;
+    char newItem[2] = { user->items[user->selector], '\0' };
 
     switch (input) {
         case ' ':
             switch (*user->direction) {
-                case 'k': mvprintw(user->y - 1, user->x, " "); break;
-                case 'j': mvprintw(user->y + 1, user->x, " "); break;
-                case 'h': mvprintw(user->y, user->x - 1, " "); break;
-                case 'l': mvprintw(user->y, user->x + 1, " "); break;
+                case 'k': mvprintw(user->y - 1, user->x, newItem); break;
+                case 'j': mvprintw(user->y + 1, user->x, newItem); break;
+                case 'h': mvprintw(user->y, user->x - 1, newItem); break;
+                case 'l': mvprintw(user->y, user->x + 1, newItem); break;
                 default: break;
             }
             return 0;
@@ -108,6 +115,26 @@ int handleInput(int input, Player * user) {
             user->direction = "l";
             newY = user->y;
             newX = user->x + 1;
+            break;
+        case '1':
+            mvprintw(0, 0, HEADER"\tItem: ' '\t"HEADER);
+            user->selector = 0;
+            break;
+        case '2':
+            mvprintw(0, 0, HEADER"\tItem: '*'\t"HEADER);
+            user->selector = 1;
+            break;
+        case '3':
+            mvprintw(0, 0, HEADER"\tItem: '|'\t"HEADER);
+            user->selector = 2;
+            break;
+        case '4':
+            mvprintw(0, 0, HEADER"\tItem: '-'\t"HEADER);
+            user->selector = 3;
+            break;
+        case '5':
+            mvprintw(0, 0, HEADER"\tItem: '@'\t"HEADER);
+            user->selector = 4;
             break;
     }
 
